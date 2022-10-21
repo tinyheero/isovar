@@ -139,7 +139,7 @@ def run_isovar(
     if isinstance(alignment_file, list):
         alignment_files = alignment_file
     else:
-        alignment_files = [alignment_file]
+        alignment_files = {"sample": alignment_file}
 
     for sample_id, alignment_file in alignment_files.items():
         if isinstance(alignment_file, string_types):
