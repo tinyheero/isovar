@@ -98,7 +98,7 @@ def run_isovar(
         Somatic variants
 
     alignment_file : pysam.AlignmentFile or list of pysam.AlignmentFile 
-        Aligned tumor RNA reads. Can accept multiple RNA-seq BAM files.
+        Aligned tumor RNA reads from one or multiple samples.
 
     transcript_id_whitelist : set of str or None
         Which transcripts should be considered when predicting DNA-only
@@ -136,7 +136,9 @@ def run_isovar(
     if isinstance(variants, string_types):
         variants = load_vcf(variants)
 
-    if isinstance(alignment_file, list):
+    # If a single sample is given, then we create a dictionary object to 
+    # harmonize the variables names across multi-sample and single sample mode
+    if isinstance(alignment_file, dict):
         alignment_files = alignment_file
     else:
         alignment_files = {"sample": alignment_file}
