@@ -30,7 +30,7 @@ class AlleleRead(ValueObject):
     at the locus and sequence before/after. We're ignoring the base qualities
     and any additional information about splicing, clipping or alignment.
     """
-    __slots__ = ["prefix", "allele", "suffix", "name", "sequence"]
+    __slots__ = ["prefix", "allele", "suffix", "name", "sequence", "sample_id"]
 
     def __init__(self, prefix, allele, suffix, name):
         self.prefix = prefix

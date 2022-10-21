@@ -76,7 +76,7 @@ DEFAULT_FILTER_FLAGS = [
 
 def run_isovar(
         variants,
-        alignment_file,
+        alignment_files,
         transcript_id_whitelist=None,
         read_collector=None,
         protein_sequence_creator=None,
@@ -97,8 +97,8 @@ def run_isovar(
     variants : varcode.VariantCollection
         Somatic variants
 
-    alignment_file : pysam.AlignmentFile
-        Aligned tumor RNA reads
+    alignment_files : List of pysam.AlignmentFile
+        Aligned tumor RNA reads. Can accept multiple RNA-seq BAM files.
 
     transcript_id_whitelist : set of str or None
         Which transcripts should be considered when predicting DNA-only
@@ -136,10 +136,12 @@ def run_isovar(
     if isinstance(variants, string_types):
         variants = load_vcf(variants)
 
-    if isinstance(alignment_file, string_types):
-        alignment_file = AlignmentFile(
-            alignment_file,
-            threads=decompression_threads)
+    for sample_id, alignment_file in alignment_files.items():
+        if isinstance(alignment_file, string_types):
+            alignment_file = AlignmentFile(
+                alignment_file,
+                threads=decompression_threads)
+        alignment_files[sample_id] = alignment_file
 
     if read_collector is None:
         read_collector = ReadCollector()
@@ -151,7 +153,7 @@ def run_isovar(
     read_evidence_gen = \
         read_collector.read_evidence_generator(
            variants=variants,
-           alignment_file=alignment_file)
+           alignment_files=alignment_files)
 
     results = []
     for variant, read_evidence in read_evidence_gen:

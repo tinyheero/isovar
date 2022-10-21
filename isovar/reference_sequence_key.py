@@ -86,6 +86,8 @@ class ReferenceSequenceKey(ValueObject):
         reference_cdna_at_variant = full_transcript_sequence[
             variant_start_offset:variant_end_offset]
 
+        # NOTE: This just matches whether the report reference bases of the 
+        # variant matches the transcript reference
         if not variant_matches_reference_sequence(
                 variant=variant,
                 strand=transcript.strand,

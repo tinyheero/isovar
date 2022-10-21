@@ -11,7 +11,6 @@
 # limitations under the License.
 
 from __future__ import print_function, division, absolute_import
-
 from six import integer_types
 
 from .default_parameters import (
@@ -486,7 +485,7 @@ class ReadCollector(object):
     def read_evidence_for_variant(
             self,
             variant,
-            alignment_file):
+            alignment_files):
         """
         Find reads in the given SAM/BAM file which overlap the given variant and
         return them as a ReadEvidence object, which splits the reads into
@@ -501,9 +500,20 @@ class ReadCollector(object):
 
         Returns ReadEvidence
         """
-        allele_reads = self.allele_reads_overlapping_variant(
-            variant=variant,
-            alignment_file=alignment_file)
+        allele_reads = []
+        # Retrieve the AlleleReads that overlap with the variant and then add
+        # the sample_id attribute to each read. This allows us to track the 
+        # origin of the AlleleReads
+        for sample_id, alignment_file in alignment_files.items():
+            cur_allele_reads = self.allele_reads_overlapping_variant(
+                variant=variant,
+                alignment_file=alignment_file)
+
+            for allele_read in cur_allele_reads:
+                allele_read.sample_id = sample_id
+            
+            allele_reads.extend(cur_allele_reads)
+
         return ReadEvidence.from_variant_and_allele_reads(
             variant,
             allele_reads)
@@ -527,7 +537,7 @@ class ReadCollector(object):
             alignment_file=alignment_file)
         return read_evidence.alt_reads
 
-    def read_evidence_generator(self, variants, alignment_file):
+    def read_evidence_generator(self, variants, alignment_files):
         """
         Consumes a generator of varcode.Variant objects, collects read evidence
         for each variant from the alignment_file, and generates a sequence
@@ -546,5 +556,5 @@ class ReadCollector(object):
         for variant in variants:
             read_evidence = self.read_evidence_for_variant(
                 variant=variant,
-                alignment_file=alignment_file)
+                alignment_files=alignment_files)
             yield variant, read_evidence
